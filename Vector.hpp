@@ -1,22 +1,41 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 
 namespace acid {
 template<typename T, std::size_t N>
-class Vector;
+class VectorBase {
+public:
+	constexpr VectorBase() = default;
+	constexpr VectorBase(const VectorBase &) = default;
+	constexpr VectorBase(VectorBase &&) = default;
+	template<typename ...Args, typename = std::enable_if_t<sizeof...(Args) == N>>
+	constexpr VectorBase(Args... args) : data{args...} {}
+	constexpr explicit VectorBase(T s) { data.fill(s); }
+	template<typename U>
+	constexpr VectorBase(const VectorBase<U, N> &v) { std::copy(v.data.begin(), v.data.end(), data.begin()); }
+
+	constexpr VectorBase &operator=(const VectorBase &) = default;
+	constexpr VectorBase &operator=(VectorBase &&) = default;
+
+	constexpr const T &operator[](std::size_t i) const { return data[i]; }
+	constexpr T &operator[](std::size_t i) { return data[i]; }
+
+	std::array<T, N> data{};
+};
 
 template<typename T>
-class Vector<T, 1> {
-	constexpr Vector() = default;
-	constexpr Vector(const Vector &) = default;
-	constexpr Vector(Vector &&) = default;
-	constexpr Vector(T x) : x(x) {}
+class VectorBase<T, 1> {
+	constexpr VectorBase() = default;
+	constexpr VectorBase(const VectorBase &) = default;
+	constexpr VectorBase(VectorBase &&) = default;
+	constexpr VectorBase(T x) : x(x) {}
 	template<typename U>
-	constexpr Vector(const Vector<U, 1> & v) : Vector(static_cast<T>(v.x)) {}
+	constexpr VectorBase(const VectorBase<U, 1> &v) : VectorBase(static_cast<T>(v.x)) {}
 
-	constexpr Vector &operator=(const Vector &) = default;
-	constexpr Vector &operator=(Vector &&) = default;
+	constexpr VectorBase &operator=(const VectorBase &) = default;
+	constexpr VectorBase &operator=(VectorBase &&) = default;
 
 	constexpr const T &operator[](std::size_t i) const { return x; }
 	constexpr T &operator[](std::size_t i) { return x; }
@@ -25,18 +44,18 @@ class Vector<T, 1> {
 };
 
 template<typename T>
-class Vector<T, 2> {
+class VectorBase<T, 2> {
 public:
-	constexpr Vector() = default;
-	constexpr Vector(const Vector &) = default;
-	constexpr Vector(Vector &&) = default;
-	constexpr Vector(T x, T y) : x(x), y(y) {}
-	constexpr explicit Vector(T s) : x(s), y(s) {}
+	constexpr VectorBase() = default;
+	constexpr VectorBase(const VectorBase &) = default;
+	constexpr VectorBase(VectorBase &&) = default;
+	constexpr VectorBase(T x, T y) : x(x), y(y) {}
+	constexpr explicit VectorBase(T s) : x(s), y(s) {}
 	template<typename U>
-	constexpr Vector(const Vector<U, 2> &v) : Vector(static_cast<T>(v.x), static_cast<T>(v.y)) {}
+	constexpr VectorBase(const VectorBase<U, 2> &v) : VectorBase(static_cast<T>(v.x), static_cast<T>(v.y)) {}
 
-	constexpr Vector &operator=(const Vector &) = default;
-	constexpr Vector &operator=(Vector &&) = default;
+	constexpr VectorBase &operator=(const VectorBase &) = default;
+	constexpr VectorBase &operator=(VectorBase &&) = default;
 
 	constexpr const T &operator[](std::size_t i) const { return i == 0 ? x : y; }
 	constexpr T &operator[](std::size_t i) { return i == 0 ? x : y; }
@@ -45,54 +64,108 @@ public:
 };
 
 template<typename T>
-class Vector<T, 3> {
+class VectorBase<T, 3> {
 public:
-	constexpr Vector() = default;
-	constexpr Vector(const Vector &) = default;
-	constexpr Vector(Vector &&) = default;
-	constexpr Vector(T x, T y, T z) : x(x), y(y), z(z) {}
-	constexpr explicit Vector(T s) : x(s), y(s), z(s) {}
-	constexpr Vector(const Vector<T, 2> &xy, T z) : x(xy.x), y(xy.y), z(z) {}
+	constexpr VectorBase() = default;
+	constexpr VectorBase(const VectorBase &) = default;
+	constexpr VectorBase(VectorBase &&) = default;
+	constexpr VectorBase(T x, T y, T z) : x(x), y(y), z(z) {}
+	constexpr explicit VectorBase(T s) : x(s), y(s), z(s) {}
+	constexpr VectorBase(const VectorBase<T, 2> &xy, T z) : x(xy.x), y(xy.y), z(z) {}
 	template<typename U>
-	constexpr Vector(const Vector<U, 3> &v) : Vector(static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z)) {}
+	constexpr VectorBase(const VectorBase<U, 3> &v) : VectorBase(static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z)) {}
 
-	constexpr Vector &operator=(const Vector &) = default;
-	constexpr Vector &operator=(Vector &&) = default;
+	constexpr VectorBase &operator=(const VectorBase &) = default;
+	constexpr VectorBase &operator=(VectorBase &&) = default;
 
 	constexpr const T &operator[](std::size_t i) const { return i == 0 ? x : i == 1 ? y : z; }
 	constexpr T &operator[](std::size_t i) { return i == 0 ? x : i == 1 ? y : z; }
 
-	constexpr const Vector<T, 2> &xy() const { return *reinterpret_cast<const Vector<T, 2> *>(this); }
-	constexpr Vector<T, 2> &xy() { return *reinterpret_cast<Vector<T, 2> *>(this); }
+	constexpr const VectorBase<T, 2> &xy() const { return *reinterpret_cast<const VectorBase<T, 2> *>(this); }
+	constexpr VectorBase<T, 2> &xy() { return *reinterpret_cast<VectorBase<T, 2> *>(this); }
 
 	T x{}, y{}, z{};
 };
 
 template<typename T>
-class Vector<T, 4> {
+class VectorBase<T, 4> {
 public:
-	constexpr Vector() = default;
-	constexpr Vector(const Vector &) = default;
-	constexpr Vector(Vector &&) = default;
-	constexpr Vector(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
-	constexpr explicit Vector(T s) : x(s), y(s), z(s), w(s) {}
-	constexpr Vector(const Vector<T, 2> &xy, T z, T w) : x(xy.x), y(xy.y), z(z), w(w) {}
-	constexpr Vector(const Vector<T, 3> &xyz, T w) : x(xyz.x), y(xyz.y), z(xyz.z), w(w) {}
+	constexpr VectorBase() = default;
+	constexpr VectorBase(const VectorBase &) = default;
+	constexpr VectorBase(VectorBase &&) = default;
+	constexpr VectorBase(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
+	constexpr explicit VectorBase(T s) : x(s), y(s), z(s), w(s) {}
+	constexpr VectorBase(const VectorBase<T, 2> &xy, T z, T w) : x(xy.x), y(xy.y), z(z), w(w) {}
+	constexpr VectorBase(const VectorBase<T, 3> &xyz, T w) : x(xyz.x), y(xyz.y), z(xyz.z), w(w) {}
 	template<typename U>
-	constexpr Vector(const Vector<U, 4> &v) : Vector(static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z), static_cast<T>(v.w)) {}
+	constexpr VectorBase(const VectorBase<U, 4> &v) : VectorBase(static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z), static_cast<T>(v.w)) {}
 
-	constexpr Vector &operator=(const Vector &) = default;
-	constexpr Vector &operator=(Vector &&) = default;
+	constexpr VectorBase &operator=(const VectorBase &) = default;
+	constexpr VectorBase &operator=(VectorBase &&) = default;
 
 	constexpr const T &operator[](std::size_t i) const { return i == 0 ? x : i == 1 ? y : i == 2 ? z : w; }
 	constexpr T &operator[](std::size_t i) { return i == 0 ? x : i == 1 ? y : i == 2 ? z : w; }
 
-	constexpr const Vector<T, 2> &xy() const { return *reinterpret_cast<const Vector<T, 2> *>(this); }
-	constexpr Vector<T, 2> &xy() { return *reinterpret_cast<Vector<T, 2> *>(this); }
-	constexpr const Vector<T, 3> &xyz() const { return *reinterpret_cast<const Vector<T, 3> *>(this); }
-	constexpr Vector<T, 3> &xyz() { return *reinterpret_cast<Vector<T, 3> *>(this); }
+	constexpr const VectorBase<T, 2> &xy() const { return *reinterpret_cast<const VectorBase<T, 2> *>(this); }
+	constexpr VectorBase<T, 2> &xy() { return *reinterpret_cast<VectorBase<T, 2> *>(this); }
+	constexpr const VectorBase<T, 3> &xyz() const { return *reinterpret_cast<const VectorBase<T, 3> *>(this); }
+	constexpr VectorBase<T, 3> &xyz() { return *reinterpret_cast<VectorBase<T, 3> *>(this); }
 
 	T x{}, y{}, z{}, w{};
+};
+
+template<typename T, std::size_t N>
+class Vector : public VectorBase<T, N> {
+public:
+	constexpr Vector() = default;
+	template<typename ...Args, typename = std::enable_if_t<sizeof...(Args) == N>>
+	constexpr Vector(Args... args) : VectorBase(args...) {}
+	template<typename U, std::size_t S,
+		typename... Args, typename = std::enable_if_t<(S < N) && (sizeof...(Args) == (N - S))>>
+	constexpr explicit Vector(const Vector<U, S> &v, Args... args) : VectorBase(v, args...) {}
+
+	constexpr T Dot(const Vector &other) {
+		T result = 0;
+		for (std::size_t i = 0; i < N; i++)
+			result += (*this)[i] * other[i];
+		return result;
+	}
+
+	/*template<typename T>
+	constexpr T Cross(const Vector<T, 2> &a, const Vector<T, 2> &b) {
+		return a.x * b.y - a.y * b.x;
+	}
+	template<typename T>
+	constexpr Vector<T, 2> Cross(T a, const Vector<T, 2> &b) {
+		return {-a * b.y, a * b.x};
+	}
+	template<typename T>
+	constexpr Vector<T, 2> Cross(const Vector<T, 2> &a, T b) {
+		return {a.y * b, -a.x * b};
+	}*/
+	template<typename = std::enable_if_t<N == 3>>
+	constexpr Vector Cross(const Vector &other) {
+		return {y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x};
+	}
+
+	constexpr T Length2() {
+		return dot(*this, *this);
+	}
+	auto Length() {
+		return std::sqrt(Length2());
+	}
+
+	constexpr auto Normalize() {
+		return *this / Length();
+	}
+
+	constexpr T Distance2(const Vector &other) {
+		return (other - *this).Length2();
+	}
+	constexpr auto Distance(const Vector &other) {
+		return (other - *this).Length();
+	}
+
 };
 
 using Vector1f = Vector<float, 1>;

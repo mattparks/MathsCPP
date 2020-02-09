@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 	Vector3f c(a, 1.0f);
 	Vector3f d(0.7f, -0.1f, 0.9f);
 
-	auto cd = cross(c, d);
+	auto cd = c.Cross(d);
 
 	auto ab = -a + b;
 

@@ -315,54 +315,6 @@ constexpr auto operator>>=(Vector<T1, N> &lhs, const T2 &rhs) {
 	return lhs = lhs >> rhs;
 }
 
-template<typename T>
-constexpr T cross(const Vector<T, 2> &a, const Vector<T, 2> &b) {
-	return a.x * b.y - a.y * b.x;
-}
-template<typename T>
-constexpr Vector<T, 2> cross(T a, const Vector<T, 2> &b) {
-	return {-a * b.y, a * b.x};
-}
-template<typename T>
-constexpr Vector<T, 2> cross(const Vector<T, 2> &a, T b) {
-	return {a.y * b, -a.x * b};
-}
-template<typename T>
-constexpr Vector<T, 3> cross(const Vector<T, 3> &a, const Vector<T, 3> &b) {
-	return {a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x};
-}
-
-template<typename T, std::size_t N>
-constexpr T dot(const Vector<T, N> &a, const Vector<T, N> &b) {
-	T result = 0;
-	for (std::size_t i = 0; i < N; i++)
-		result += a[i] * b[i];
-	return result;
-}
-
-template<typename T, std::size_t N>
-constexpr T length2(const Vector<T, N> &a) {
-	return dot(a, a);
-}
-template<typename T, std::size_t N>
-auto length(const Vector<T, N> &a) {
-	return std::sqrt(length2(a));
-}
-
-template<typename T, std::size_t N>
-constexpr auto normalize(const Vector<T, N> &a) {
-	return a / length(a);
-}
-
-template<typename T, std::size_t N>
-constexpr T distance2(const Vector<T, N> &a, const Vector<T, N> &b) {
-	return length2(b - a);
-}
-template<typename T, std::size_t N>
-constexpr auto distance(const Vector<T, N> &a, const Vector<T, N> &b) {
-	return length(b - a);
-}
-
 template<typename T, std::size_t N>
 constexpr T uangle(const Vector<T, N> &a, const Vector<T, N> &b) {
 	const T d = dot(a, b);
