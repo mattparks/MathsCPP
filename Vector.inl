@@ -2,6 +2,6 @@
 
 #include "Vector.hpp"
 
-namespace SpauldingCPP {
+namespace acid {
 
 }

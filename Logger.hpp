@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <iostream>
 
-namespace SpauldingCPP {
+namespace acid {
 class Logger {
 public:
 	static constexpr auto TimestampFormat = "%Y-%m-%d %H:%M:%S GMT%z";
@@ -20,5 +20,5 @@ public:
 	}
 };
 
-#define WRITE_DEBUG(...) SpauldingCPP::Logger::WriteDebug(__FUNCTION__,__LINE__, __FILE__, __VA_ARGS__)
+#define WRITE_DEBUG(...) acid::Logger::WriteDebug(__FUNCTION__,__LINE__, __FILE__, __VA_ARGS__)
 }

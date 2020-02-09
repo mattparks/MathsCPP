@@ -5,12 +5,11 @@
 #include "Matrix.hpp"
 
 int main(int argc, char *argv[]) {
-	using namespace SpauldingCPP;
-	Vec2f a(1.0f, 1.0f);
-	Vec3f b(a, 1.0f);
-	auto c = Vec3f(a, 0.0f) + b;
+	using namespace acid;
 
-	Mat4x4f view;
+	Vector2 a(0.5f, -0.5f);
+	Vector2 b(10.0f, 2.0f);
+	Vector3 c(a, 1.0f);
 
 	//WRITE_DEBUG("Hello World!");
 	return 0;
