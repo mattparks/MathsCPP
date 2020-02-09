@@ -8,9 +8,13 @@ int main(int argc, char *argv[]) {
 	using namespace acid;
 
 	Vector2f a(0.5f, -0.5f);
-	a.x() = 0.5f;
-	Vector2f b(10.0f, 2.0f);
+	Vector2i b(10, 2);
 	Vector3f c(a, 1.0f);
+	Vector3f d(0.7f, -0.1f, 0.9f);
+
+	auto cd = cross(c, d);
+
+	auto ab = -a + b;
 
 	//WRITE_DEBUG("Hello World!");
 	return 0;
