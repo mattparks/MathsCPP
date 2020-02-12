@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
 	Vector3f d(0.7f, -0.1f, 0.9f);
 
 	auto cd = c.Cross(d);
+	auto ang1 = c.Angle(d);
 
 	auto ab = -a + b;
 
