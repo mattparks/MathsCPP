@@ -23,11 +23,13 @@ public:
 	constexpr const T &operator[](std::size_t i) const { return data[i]; }
 	constexpr T &operator[](std::size_t i) { return data[i]; }
 
+	
 	std::array<T, N> data{};
 };
 
 template<typename T>
 class VectorBase<T, 1> {
+public:
 	constexpr VectorBase() = default;
 	constexpr VectorBase(T x) : x(x) {}
 	template<typename U>
@@ -42,6 +44,7 @@ class VectorBase<T, 1> {
 	constexpr const T &operator[](std::size_t i) const { return x; }
 	constexpr T &operator[](std::size_t i) { return x; }
 
+	
 	T x{};
 };
 
@@ -64,6 +67,7 @@ public:
 	constexpr const T &operator[](std::size_t i) const { return i == 0 ? x : y; }
 	constexpr T &operator[](std::size_t i) { return i == 0 ? x : y; }
 
+	
 	T x{}, y{};
 };
 
@@ -88,9 +92,7 @@ public:
 	constexpr const T &operator[](std::size_t i) const { return i == 0 ? x : i == 1 ? y : z; }
 	constexpr T &operator[](std::size_t i) { return i == 0 ? x : i == 1 ? y : z; }
 
-	constexpr const VectorBase<T, 2> &xy() const { return *reinterpret_cast<const VectorBase<T, 2> *>(this); }
-	constexpr VectorBase<T, 2> &xy() { return *reinterpret_cast<VectorBase<T, 2> *>(this); }
-
+	
 	T x{}, y{}, z{};
 };
 
@@ -117,11 +119,7 @@ public:
 	constexpr const T &operator[](std::size_t i) const { return i == 0 ? x : i == 1 ? y : i == 2 ? z : w; }
 	constexpr T &operator[](std::size_t i) { return i == 0 ? x : i == 1 ? y : i == 2 ? z : w; }
 
-	constexpr const VectorBase<T, 2> &xy() const { return *reinterpret_cast<const VectorBase<T, 2> *>(this); }
-	constexpr VectorBase<T, 2> &xy() { return *reinterpret_cast<VectorBase<T, 2> *>(this); }
-	constexpr const VectorBase<T, 3> &xyz() const { return *reinterpret_cast<const VectorBase<T, 3> *>(this); }
-	constexpr VectorBase<T, 3> &xyz() { return *reinterpret_cast<VectorBase<T, 3> *>(this); }
-
+	
 	T x{}, y{}, z{}, w{};
 };
 
@@ -131,6 +129,7 @@ public:
 	constexpr Vector() = default;
 	template<typename ...Args, typename = std::enable_if_t<sizeof...(Args) == N>>
 	constexpr Vector(Args... args) : VectorBase(args...) {}
+	constexpr explicit Vector(T s) : VectorBase(s) {}
 	template<typename U, std::size_t S, typename... Args, typename = std::enable_if_t<S < N && sizeof...(Args) == (N - S)>>
 	constexpr explicit Vector(const Vector<U, S> &v, Args... args) : VectorBase(v, args...) {}
 
@@ -193,7 +192,50 @@ public:
 		const T c = std::cos(a);
 		return {x * c - y * s, x * s + y * c};
 	}
+
+
+	template<typename = std::enable_if_t<N >= 2>>
+	constexpr const Vector<T, 2> &xy() const { return *reinterpret_cast<const Vector<T, 2> *>(this); }
+	template<typename = std::enable_if_t<N >= 2>>
+	constexpr Vector<T, 2> &xy() { return *reinterpret_cast<Vector<T, 2> *>(this); }
+	template<typename = std::enable_if_t<N >= 3>>
+	constexpr const Vector<T, 3> &xyz() const { return *reinterpret_cast<const Vector<T, 3> *>(this); }
+	template<typename = std::enable_if_t<N >= 3>>
+	constexpr Vector<T, 3> &xyz() { return *reinterpret_cast<Vector<T, 3> *>(this); }
+
+
+	static const Vector Zero;
+	static const Vector One;
+	static const Vector Infinity;
+	static const Vector Right;
+	static const Vector Left;
+	static const Vector Up;
+	static const Vector Down;
+	static const Vector Front;
+	static const Vector Back;
+
 };
+
+
+template<typename T, std::size_t N>
+constexpr Vector<T, N> Vector<T, N>::Zero = Vector<T, N>(0);
+template<typename T, std::size_t N>
+constexpr Vector<T, N> Vector<T, N>::One = Vector<T, N>(1);
+template<typename T, std::size_t N>
+constexpr Vector<T, N> Vector<T, N>::Infinity = Vector<T, N>(std::numeric_limits<T>::infinity());
+template<typename T, std::size_t N> // std::enable_if_t<N <= 2, int> = 0
+constexpr Vector<T, N> Vector<T, N>::Right = Vector<T, N>(1, 0);
+template<typename T, std::size_t N> // std::enable_if_t<N <= 2, int> = 0
+constexpr Vector<T, N> Vector<T, N>::Left = Vector<T, N>(-1, 0);
+template<typename T, std::size_t N> // std::enable_if_t<N <= 2, int> = 0
+constexpr Vector<T, N> Vector<T, N>::Up = Vector<T, N>(0, 1);
+template<typename T, std::size_t N> // std::enable_if_t<N <= 2, int> = 0
+constexpr Vector<T, N> Vector<T, N>::Down = Vector<T, N>(0, -1);
+template<typename T, std::size_t N> // std::enable_if_t<N <= 3, int> = 0
+constexpr Vector<T, N> Vector<T, N>::Front = Vector<T, N>(0, 0, 1);
+template<typename T, std::size_t N> // std::enable_if_t<N <= 3, int> = 0
+constexpr Vector<T, N> Vector<T, N>::Back = Vector<T, N>(0, 0, -1);
+
 
 using Vector1f = Vector<float, 1>;
 using Vector1i = Vector<int32_t, 1>;
