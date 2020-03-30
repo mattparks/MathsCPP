@@ -6,6 +6,25 @@
 #include "Vector.hpp"
 
 namespace acid {
+template<typename T, std::size_t N>
+const Vector<T, N> Vector<T, N>::Zero = Vector<T, N>(0);
+template<typename T, std::size_t N>
+const Vector<T, N> Vector<T, N>::One = Vector<T, N>(1);
+template<typename T, std::size_t N>
+const Vector<T, N> Vector<T, N>::Infinity = Vector<T, N>(std::numeric_limits<T>::infinity());
+template<typename T, std::size_t N> // typename = std::enable_if_t<N <= 2> 
+const Vector<T, N> Vector<T, N>::Right = Vector<T, N>(1, 0);
+template<typename T, std::size_t N> // typename = std::enable_if_t<N <= 2> 
+const Vector<T, N> Vector<T, N>::Left = Vector<T, N>(-1, 0);
+template<typename T, std::size_t N> // typename = std::enable_if_t<N <= 2> 
+const Vector<T, N> Vector<T, N>::Up = Vector<T, N>(0, 1);
+template<typename T, std::size_t N> // typename = std::enable_if_t<N <= 2> 
+const Vector<T, N> Vector<T, N>::Down = Vector<T, N>(0, -1);
+template<typename T, std::size_t N> // typename = std::enable_if_t<N <= 3> 
+const Vector<T, N> Vector<T, N>::Front = Vector<T, N>(0, 0, 1);
+template<typename T, std::size_t N> // typename = std::enable_if_t<N <= 3> 
+const Vector<T, N> Vector<T, N>::Back = Vector<T, N>(0, 0, -1);
+
 template<typename T1, typename T2, std::size_t N>
 constexpr auto operator==(const Vector<T1, N> &lhs, const Vector<T2, N> &rhs) {
 	for (std::size_t i = 0; i < N; i++) {

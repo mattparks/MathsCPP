@@ -14,6 +14,13 @@ int main(int argc, char *argv[]) {
 
 	auto nInf3f = -Vector4f::Infinity.xyz();
 
+	for (auto m : Matrix4x4f()) {
+		for (auto n : m) {
+			std::cout << n << ", ";
+		}
+		std::cout << "\n";
+	}
+
 	auto cd = c.Cross(d);
 	auto ang1 = c.Angle(d);
 

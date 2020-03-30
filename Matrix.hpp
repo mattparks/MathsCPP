@@ -70,6 +70,7 @@ public:
 
 	Vector<T, N> x, y;
 };
+
 template<typename T, std::size_t N>
 class MatrixBase<T, N, 3> {
 public:
@@ -132,6 +133,17 @@ public:
 	constexpr Matrix(Args... args) : MatrixBase(args...) {}
 	template<typename U, std::size_t S, std::size_t A>
 	constexpr explicit Matrix(const Matrix<U, S, A> &m) : MatrixBase(m) {}
+
+	constexpr auto size() const { return M; }
+
+	auto begin() { return &at(0); }
+	auto begin() const { return &at(0); }
+
+	auto end() { return &at(0) + M; }
+	auto end() const { return &at(0) + M; }
+
+	constexpr const auto &at(std::size_t i) const { return (*this)[i]; }
+	constexpr auto &at(std::size_t i) { return (*this)[i]; }
 
 	template<typename = std::enable_if_t<N == 4 && M == 4>>
 	static Matrix<T, 4, 4> FrustumMatrix(T x0, T x1, T y0, T y1, T n, T f, ForwardAxis a = ForwardAxis::NegZ, ZRange z = ZRange::NegOneToOne) {

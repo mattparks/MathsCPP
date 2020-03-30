@@ -133,10 +133,21 @@ public:
 	template<typename U, std::size_t S, typename... Args, typename = std::enable_if_t<S < N && sizeof...(Args) == (N - S)>>
 	constexpr explicit Vector(const Vector<U, S> &v, Args... args) : VectorBase(v, args...) {}
 
+	constexpr auto size() const { return N; }
+
+	auto begin() { return &at(0); }
+	auto begin() const { return &at(0); }
+
+	auto end() { return &at(0) + N; }
+	auto end() const { return &at(0) + N; }
+
+	constexpr const auto &at(std::size_t i) const { return (*this)[i]; }
+	constexpr auto &at(std::size_t i) { return (*this)[i]; }
+
 	constexpr T Dot(const Vector &other) const {
 		T result = 0;
 		for (std::size_t i = 0; i < N; i++)
-			result += (*this)[i] * other[i];
+			result += at(i) * other[i];
 		return result;
 	}
 
@@ -147,31 +158,35 @@ public:
 		return std::sqrt(Length2());
 	}
 
-	constexpr auto Normalize() const {
+	auto Normalize() const {
 		return *this / Length();
 	}
 
-	template<typename = std::enable_if_t<N == 2>>
-	constexpr T Cross(const Vector &other) const {
-		return x * other.y - y * other.x;
-	}
-	template<typename = std::enable_if_t<N == 3>>
-	constexpr Vector Cross(const Vector &other) const {
-		return {y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x};
+	template<typename = std::enable_if_t<N == 2 || N == 3>>
+	constexpr auto Cross(const Vector &other) const {
+		if constexpr (N == 2) {
+			return x * other.y - y * other.x;
+		} else {
+			return Vector(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
+		}
 	}
 
 	constexpr T Distance2(const Vector &other) const {
 		return (other - *this).Length2();
 	}
-	constexpr auto Distance(const Vector &other) const {
+	auto Distance(const Vector &other) const {
 		return (other - *this).Length();
 	}
 
-	constexpr T Uangle(const Vector &other) const {
+	constexpr auto DistanceVector(const Vector &other) const {
+		return (*this - other) * (*this - other);
+	}
+	
+	T Uangle(const Vector &other) const {
 		const T d = Dot(other);
 		return d > 1 ? 0 : std::acos(d < -1 ? -1 : d);
 	}
-	constexpr T Angle(const Vector &other) const {
+	T Angle(const Vector &other) const {
 		return Normalize().Uangle(other.Normalize());
 	}
 
@@ -181,18 +196,53 @@ public:
 	constexpr T Nlerp(const Vector &other, T t) const {
 		return Lerp(other, t).Normalize();
 	}
-	constexpr T Slerp(const Vector &other, T t) const {
+	T Slerp(const Vector &other, T t) const {
 		T th = Uangle(other);
 		return th == 0 ? *this : *this * (std::sin(th * (1 - t)) / std::sin(th)) + other * (std::sin(th * t) / std::sin(th));
 	}
 
 	template<typename = std::enable_if_t<N == 2>>
-	constexpr Vector Rotate(T a) const {
+	Vector Rotate(T a) const {
 		const T s = std::sin(a);
 		const T c = std::cos(a);
 		return {x * c - y * s, x * s + y * c};
 	}
 
+	template<typename = std::enable_if_t<N == 2>>
+	constexpr bool InTriangle(const Vector &v1, const Vector &v2, const Vector &v3) const {
+		auto b1 = ((x - v2.x) * (v1.y - v2.y) - (v1.x - v2.y) * (y - v2.y)) < 0;
+		auto b2 = ((x - v3.x) * (v2.y - v3.y) - (v2.x - v3.y) * (y - v3.y)) < 0;
+		auto b3 = ((x - v1.x) * (v3.y - v1.y) - (v3.x - v1.y) * (y - v1.y)) < 0;
+		return ((b1 == b2) & (b2 == b3));
+	}
+
+	template<typename = std::enable_if_t<N == 2 || N == 3>>
+	auto CartesianToPolar() const {
+		if constexpr (N == 2) {
+			auto radius = std::sqrt(x * x + y * y);
+			auto theta = std::atan2(y, x);
+			return Vector<decltype(radius), N>(radius, theta);
+		} else {
+			auto radius = std::sqrt(x * x + y * y + z * z);
+			auto theta = std::atan2(y, x);
+			auto phi = std::atan2(std::sqrt(x * x + y * y), z);
+			return Vector<decltype(radius), N>(radius, theta, phi);
+		}
+	}
+
+	template<typename = std::enable_if_t<N == 2 || N == 3>>
+	auto PolarToCartesian() const {
+		if constexpr (N == 2) {
+			auto x1 = x * std::cos(y);
+			auto y1 = x * std::sin(x);
+			return Vector<decltype(x1), N>(x1, y1);
+		} else {
+			auto x1 = x * std::sin(z) * std::cos(y);
+			auto y1 = x * std::sin(z) * std::sin(y);
+			auto z1 = x * std::cos(z);
+			return Vector<decltype(x1), N>(x1, y1, z1);
+		}
+	}
 
 	template<typename = std::enable_if_t<N >= 2>>
 	constexpr const Vector<T, 2> &xy() const { return *reinterpret_cast<const Vector<T, 2> *>(this); }
@@ -215,27 +265,6 @@ public:
 	static const Vector Back;
 
 };
-
-
-template<typename T, std::size_t N>
-constexpr Vector<T, N> Vector<T, N>::Zero = Vector<T, N>(0);
-template<typename T, std::size_t N>
-constexpr Vector<T, N> Vector<T, N>::One = Vector<T, N>(1);
-template<typename T, std::size_t N>
-constexpr Vector<T, N> Vector<T, N>::Infinity = Vector<T, N>(std::numeric_limits<T>::infinity());
-template<typename T, std::size_t N> // std::enable_if_t<N <= 2, int> = 0
-constexpr Vector<T, N> Vector<T, N>::Right = Vector<T, N>(1, 0);
-template<typename T, std::size_t N> // std::enable_if_t<N <= 2, int> = 0
-constexpr Vector<T, N> Vector<T, N>::Left = Vector<T, N>(-1, 0);
-template<typename T, std::size_t N> // std::enable_if_t<N <= 2, int> = 0
-constexpr Vector<T, N> Vector<T, N>::Up = Vector<T, N>(0, 1);
-template<typename T, std::size_t N> // std::enable_if_t<N <= 2, int> = 0
-constexpr Vector<T, N> Vector<T, N>::Down = Vector<T, N>(0, -1);
-template<typename T, std::size_t N> // std::enable_if_t<N <= 3, int> = 0
-constexpr Vector<T, N> Vector<T, N>::Front = Vector<T, N>(0, 0, 1);
-template<typename T, std::size_t N> // std::enable_if_t<N <= 3, int> = 0
-constexpr Vector<T, N> Vector<T, N>::Back = Vector<T, N>(0, 0, -1);
-
 
 using Vector1f = Vector<float, 1>;
 using Vector1i = Vector<int32_t, 1>;
