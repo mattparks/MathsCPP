@@ -169,3 +169,5 @@ using Matrix2x2f = Matrix<float, 2, 2>;
 using Matrix3x3f = Matrix<float, 3, 3>;
 using Matrix4x4f = Matrix<float, 4, 4>;
 }
+
+#include "Matrix.inl"

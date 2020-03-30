@@ -1,9 +1,11 @@
 #pragma once
 
+#include "Vector.hpp"
+
 #include <cmath>
 #include <type_traits>
 
-#include "Vector.hpp"
+#include "Maths.hpp"
 
 namespace acid {
 template<typename T, std::size_t N>
@@ -333,4 +335,16 @@ template<typename T1, typename T2, std::size_t N>
 constexpr auto operator>>=(Vector<T1, N> &lhs, const T2 &rhs) {
 	return lhs = lhs >> rhs;
 }
+}
+
+namespace std {
+template<typename T, size_t N>
+struct hash<acid::Vector<T, N>> {
+	size_t operator()(const acid::Vector<T, N> &vector) const {
+		size_t seed = 0;
+		for (size_t i = 0; i < N; i++)
+			acid::Maths::HashCombine(seed, vector[i]);
+		return seed;
+	}
+};
 }
