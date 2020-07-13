@@ -1,12 +1,30 @@
 #include <iostream>
 
 #include "Logger.hpp"
+#include "Colour.hpp"
 #include "Vector.hpp"
 #include "Matrix.hpp"
 
 int main(int argc, char *argv[]) {
-	using namespace acid;
+	using namespace MathsCPP;
 
+	{
+		Vector3d sd(3.0);
+		Vector3f sf(sd);
+		sf = sd;
+
+		Vector2f a(1.0f, 2.0f), b(3.0f, 4.0f);
+		//Vector4f ab(a, b);
+		//Vector4f vb(1.0f, 2.0f, b);
+		//Vector4f av(a, 3.0f, 4.0f);
+	}
+	
+	/*{
+		Colour4f red(std::string("#ff0000"));
+		WRITE_DEBUG(red);
+		auto asVec = red.xyzw();
+		WRITE_DEBUG(asVec);
+	}
 	{
 		Vector2f a(0.5f, -0.5f);
 		Vector2i b(10, 2);
@@ -105,7 +123,7 @@ int main(int argc, char *argv[]) {
 	{
 		auto perspective = Matrix4x4f::PerspectiveMatrix(90.0f, 1.0f, 0.0f, 1.0f, ForwardAxis::NegZ);
 		WRITE_DEBUG("\n", perspective);
-	}
+	}*/
 	
 	return 0;
 }

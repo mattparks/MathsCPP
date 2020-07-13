@@ -6,7 +6,7 @@
 
 #include "Maths.hpp"
 
-namespace acid {
+namespace MathsCPP {
 template<typename T, std::size_t N, typename Sfinae = std::enable_if_t<std::is_arithmetic_v<T>>>
 class VectorBase {
 protected:
@@ -62,14 +62,14 @@ template<typename T, std::size_t N>
 class Vector : public VectorBase<T, N> {
 public:
 	constexpr Vector() = default;
-	template<typename ...Args, typename = std::enable_if<sizeof...(Args) == N>>
+	template<typename ...Args, typename = std::enable_if_t<sizeof...(Args) == N && std::conjunction_v<std::is_arithmetic<Args>...>>>
 	constexpr Vector(Args... args) : VectorBase<T, N>(static_cast<T>(args)...) {}
-	template<typename T1, typename = std::enable_if<std::is_arithmetic_v<T1>>>
+	template<typename T1, typename = std::enable_if_t<std::is_arithmetic_v<T1>>>
 	constexpr explicit Vector(T1 s) { std::fill(begin(), end(), static_cast<T>(s)); }
-	//template<typename T1, std::size_t N1, typename... Args, typename = std::enable_if<N1 < N && sizeof...(Args) == (N - N1)>>
-	//constexpr explicit Vector(const Vector<T1, N1> &v, Args... args) : Vector(v, args...) {}
-	//template<typename T1, typename T2, std::size_t N1, std::size_t N2, typename = std::enable_if<N1 + N2 == N>>
-	//constexpr Vector(const Vector<T1, N1> &v1, const Vector<T2, N2> &v2) : Vector(v1, v2) {}
+	//template<typename T1, std::size_t N1, typename... Args, typename = std::enable_if_t<N1 < N && sizeof...(Args) == (N - N1)>>
+	//constexpr explicit Vector(const Vector<T1, N1> &v, Args... args) : VectorBase<T, N>(v, args...) {}
+	//template<typename T1, std::size_t N1, typename T2, std::size_t N2, typename = std::enable_if_t<N1 + N2 == N>>
+	//constexpr Vector(const Vector<T1, N1> &v1, const Vector<T2, N2> &v2) : VectorBase<T, N>(v1, v2) {}
 	template<typename T1>
 	constexpr Vector(const Vector<T1, N> &v) { copy_cast(v.begin(), v.end(), begin()); }
 
@@ -109,6 +109,8 @@ public:
 	template<typename = std::enable_if_t<N >= 3>>
 	constexpr Vector<T, 3> &xyz() { return *reinterpret_cast<Vector<T, 3> *>(this); }
 
+	// TODO: Vectors do not have any swizzle capabilities, would this be possible?
+	
 	/**
 	 * Calculates the dot product of the this vector and another vector.
 	 * @param other The other vector.
@@ -606,7 +608,6 @@ public:
 		return result;
 	}
 
-
 	template<typename T1>
 	constexpr friend auto operator+=(Vector &lhs, const T1 &rhs) {
 		return lhs = lhs + rhs;
@@ -716,11 +717,11 @@ using Vector4ui = Vector<uint32_t, 4>;
 
 namespace std {
 template<typename T, size_t N>
-struct hash<acid::Vector<T, N>> {
-	size_t operator()(const acid::Vector<T, N> &vector) const noexcept {
+struct hash<MathsCPP::Vector<T, N>> {
+	size_t operator()(const MathsCPP::Vector<T, N> &vector) const noexcept {
 		size_t seed = 0;
 		for (size_t i = 0; i < N; i++)
-			acid::Maths::HashCombine(seed, vector[i]);
+			MathsCPP::Maths::HashCombine(seed, vector[i]);
 		return seed;
 	}
 };

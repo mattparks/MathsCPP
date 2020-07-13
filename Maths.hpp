@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <type_traits>
 
-namespace acid {
+namespace MathsCPP {
 /**
  * A implementation of std::copy that static casts the input value type to the output value type.
  * @tparam InputIt, OutputIt Must meet the requirements of LegacyInputIterator and LegacyOutputIterator respectively.

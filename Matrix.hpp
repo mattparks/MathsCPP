@@ -3,7 +3,7 @@
 #include "Vector.hpp"
 #include "Maths.hpp"
 
-namespace acid {
+namespace MathsCPP {
 template<typename T, std::size_t N, std::size_t M, typename Sfinae = std::enable_if_t<std::is_arithmetic_v<T>>>
 class MatrixBase {
 protected:
@@ -62,9 +62,9 @@ template<typename T, std::size_t N, std::size_t M>
 class Matrix : public MatrixBase<T, N, M> {
 public:
 	constexpr Matrix() = default;
-	template<typename ...Args, typename = std::enable_if<sizeof...(Args) == M>>
+	template<typename ...Args, typename = std::enable_if_t<sizeof...(Args) == M && std::conjunction_v<std::is_convertible<Args, Vector<T, N>>...>>>
 	constexpr Matrix(Args... args) : MatrixBase<T, N, M>(Vector<T, N>(args)...) {}
-	template<typename T1, typename = std::enable_if<std::is_arithmetic_v<T1> && M == N>>
+	template<typename T1, typename = std::enable_if_t<std::is_arithmetic_v<T1> && M == N>>
 	constexpr explicit Matrix(T1 s) {
 		for (std::size_t j = 0; j < M; j++)
 			at(j)[j] = static_cast<T>(s);
@@ -390,11 +390,11 @@ using Matrix4x4f = Matrix<float, 4, 4>;
 
 namespace std {
 template<typename T, size_t N, size_t M>
-struct hash<acid::Matrix<T, N, M>> {
-	size_t operator()(const acid::Matrix<T, N, M> &matrix) const noexcept {
+struct hash<MathsCPP::Matrix<T, N, M>> {
+	size_t operator()(const MathsCPP::Matrix<T, N, M> &matrix) const noexcept {
 		size_t seed = 0;
 		for (size_t i = 0; i < M; i++)
-			acid::Maths::HashCombine(seed, matrix[i]);
+			MathsCPP::Maths::HashCombine(seed, matrix[i]);
 		return seed;
 	}
 };
