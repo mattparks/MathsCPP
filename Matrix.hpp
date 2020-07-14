@@ -4,52 +4,6 @@
 #include "Maths.hpp"
 
 namespace MathsCPP {
-template<typename T, std::size_t N, std::size_t M, typename Sfinae = std::enable_if_t<std::is_arithmetic_v<T>>>
-class MatrixBase {
-protected:
-	constexpr MatrixBase() = default;
-	template<typename ...Args>
-	constexpr MatrixBase(Args... args) : data{args...} {}
-public:
-	Vector<T, N> data[M]{};
-};
-
-template<typename T, std::size_t N>
-class MatrixBase<T, N, 1> {
-protected:
-	constexpr MatrixBase() = default;
-	constexpr MatrixBase(Vector<T, N> x) : x(x) {}
-public:
-	Vector<T, N> x{};
-};
-
-template<typename T, std::size_t N>
-class MatrixBase<T, N, 2> {
-protected:
-	constexpr MatrixBase() = default;
-	constexpr MatrixBase(Vector<T, N> x, Vector<T, N> y) : x(x), y(y) {}
-public:
-	Vector<T, N> x{}, y{};
-};
-
-template<typename T, std::size_t N>
-class MatrixBase<T, N, 3> {
-protected:
-	constexpr MatrixBase() = default;
-	constexpr MatrixBase(Vector<T, N> x, Vector<T, N> y, Vector<T, N> z) : x(x), y(y), z(z) {}
-public:
-	Vector<T, N> x{}, y{}, z{};
-};
-
-template<typename T, std::size_t N>
-class MatrixBase<T, N, 4> {
-protected:
-	constexpr MatrixBase() = default;
-	constexpr MatrixBase(Vector<T, N> x, Vector<T, N> y, Vector<T, N> z, Vector<T, N> w) : x(x), y(y), z(z), w(w) {}
-public:
-	Vector<T, N> x{}, y{}, z{}, w{};
-};
-
 /// Should projection matrices be generated assuming forward is {0,0,-1} or {0,0,1}
 enum class ForwardAxis { NegZ, PosZ };
 /// Should projection matrices map z into the range of [-1,1] or [0,1]?
@@ -58,12 +12,12 @@ enum class ZRange { NegOneToOne, ZeroToOne };
 /**
  * @brief Holds a row major MxN matrix.
  */
-template<typename T, std::size_t N, std::size_t M>
-class Matrix : public MatrixBase<T, N, M> {
+template<typename T, std::size_t N, std::size_t M/*, typename = std::enable_if_t<std::is_arithmetic_v<T>>*/>
+class Matrix {
 public:
 	constexpr Matrix() = default;
 	template<typename ...Args, typename = std::enable_if_t<sizeof...(Args) == M && std::conjunction_v<std::is_convertible<Args, Vector<T, N>>...>>>
-	constexpr Matrix(Args... args) : MatrixBase<T, N, M>(Vector<T, N>(args)...) {}
+	constexpr Matrix(Args... args) : data{args...} {}
 	template<typename T1, typename = std::enable_if_t<std::is_arithmetic_v<T1> && M == N>>
 	constexpr explicit Matrix(T1 s) {
 		for (std::size_t j = 0; j < M; j++)
@@ -375,6 +329,8 @@ public:
 
 	static const Matrix Zero;
 	static const Matrix Identity;
+
+	Vector<T, N> data[M]{};
 };
 
 template<typename T, std::size_t N, std::size_t M>

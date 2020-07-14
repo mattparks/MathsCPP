@@ -7,7 +7,7 @@
 #include "Maths.hpp"
 
 namespace MathsCPP {
-template<typename T, std::size_t N, typename Sfinae = std::enable_if_t<std::is_arithmetic_v<T>>>
+template<typename T, std::size_t N, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 class VectorBase {
 protected:
 	constexpr VectorBase() = default;
@@ -109,8 +109,6 @@ public:
 	template<typename = std::enable_if_t<N >= 3>>
 	constexpr Vector<T, 3> &xyz() { return *reinterpret_cast<Vector<T, 3> *>(this); }
 
-	// TODO: Vectors do not have any swizzle capabilities, would this be possible?
-	
 	/**
 	 * Calculates the dot product of the this vector and another vector.
 	 * @param other The other vector.
@@ -217,8 +215,8 @@ public:
 		return Lerp(other, t).Normalize();
 	}
 	
-	template<typename T1>
-	T Slerp(const Vector &other, T1 t) const {
+	template<typename T1, typename T2>
+	T Slerp(const Vector<T1, N> &other, T2 t) const {
 		T th = Uangle(other);
 		return th == 0 ? *this : *this * (std::sin(th * (1 - t)) / std::sin(th)) + other * (std::sin(th * t) / std::sin(th));
 	}

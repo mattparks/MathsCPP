@@ -1,13 +1,42 @@
-#include <iostream>
+﻿#include <iostream>
 
 #include "Logger.hpp"
-#include "Colour.hpp"
 #include "Vector.hpp"
 #include "Matrix.hpp"
+#include "Colour.hpp"
+#include "Quaternion.hpp"
+#include "Rectangle.hpp"
+#include "Duration.hpp"
 
 int main(int argc, char *argv[]) {
 	using namespace MathsCPP;
 
+	{
+		Rectanglef ten(0, 0, 10, 10);
+	}
+	{
+		Colourf red(std::string("#ff0000"));
+		WRITE_DEBUG(red);
+		auto asVec = red.xyzw();
+		WRITE_DEBUG(asVec);
+	}
+	{
+		Quaternionf l;
+		Quaternionf l2;
+		auto c2 = l * l2;
+		auto sl = l.Slerp(l2, 0.5);
+		Vector3f r;
+		auto c = l * r;
+	}
+	{
+		auto now = Duration<Microseconds>::Now();
+		Duration<Seconds> future = now + 10s;
+		if (future - 10s == now) {
+			
+		}
+		auto futureFp = future.Cast<Seconds, float>();
+		WRITE_DEBUG(futureFp);
+	}
 	{
 		Vector3d sd(3.0);
 		Vector3f sf(sd);
@@ -17,15 +46,12 @@ int main(int argc, char *argv[]) {
 		//Vector4f ab(a, b);
 		//Vector4f vb(1.0f, 2.0f, b);
 		//Vector4f av(a, 3.0f, 4.0f);
+		//Vector<float, 5> avb(a, 5.0f, b);
+
+		//Vector1d a1(1.0), b1(2.0), c1(3.0);
+		//Vector3d abc1(a1, b1, c1);
 	}
-	
 	/*{
-		Colour4f red(std::string("#ff0000"));
-		WRITE_DEBUG(red);
-		auto asVec = red.xyzw();
-		WRITE_DEBUG(asVec);
-	}
-	{
 		Vector2f a(0.5f, -0.5f);
 		Vector2i b(10, 2);
 		Vector3f c(10, 2, 1.0f);
@@ -112,10 +138,10 @@ int main(int argc, char *argv[]) {
 	}
 	{
 		Matrix<int32_t, 4, 4> l(
-			Vector4i(1, 1, 2, 1),
-			Vector4i(4, 7, 1, 0),
-			Vector4i(3, 3, 6, 8),
-			Vector4i(0, 2, 2, 4)
+			{1, 1, 2, 1},
+			{4, 7, 1, 0},
+			{3, 3, 6, 8},
+			{0, 2, 2, 4}
 		);
 		Vector<int32_t, 4> r(6, 2, 1, 0);
 		WRITE_DEBUG("\n", l * r); // = {10, 39, 30, 6}

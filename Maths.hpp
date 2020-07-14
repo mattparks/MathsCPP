@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cmath>
 #include <type_traits>
 
 namespace MathsCPP {
@@ -20,6 +21,32 @@ OutputIt copy_cast(InputIt first, InputIt last, OutputIt d_first) {
 
 class Maths {
 public:
+	template<typename T>
+	static constexpr T PI = static_cast<T>(3.14159265358979323846264338327950288L);
+
+	Maths() = delete;
+
+	/**
+	 * Takes the cosign of a number by using the sign and a additional angle.
+	 * @tparam T The sin type.
+	 * @tparam K The angle type.
+	 * @param sin The sin.
+	 * @param angle The angle.
+	 * @return The resulting cosign.
+	 */
+	template<typename T, typename K>
+	static auto CosFromSin(T sin, K angle) {
+		// sin(x)^2 + cos(x)^2 = 1
+		auto cos = std::sqrt(1 - sin * sin);
+		auto a = angle + (PI<T> / 2);
+		auto b = a - static_cast<int32_t>(a / (2 * PI<T>)) * (2 * PI<T>);
+		if (b < 0)
+			b = (2 * PI<T>) + b;
+		if (b >= PI<T>)
+			return -cos;
+		return cos;
+	}
+	
 	/**
 	 * Combines a seed into a hash and modifies the seed by the new hash.
 	 * @param seed The seed.
