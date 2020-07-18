@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <sstream>
 #include <iomanip>
 
@@ -62,25 +63,17 @@ public:
 		return *this;
 	}
 
+	constexpr const T &at(std::size_t i) const { return i == 0 ? r : i == 1 ? g : i == 2 ? b : a; }
+	constexpr T &at(std::size_t i) { return i == 0 ? r : i == 1 ? g : i == 2 ? b : a; }
+	
 	constexpr const T &operator[](std::size_t i) const { return at(i); }
 	constexpr T &operator[](std::size_t i) { return at(i); }
-
-	constexpr auto size() const { return 4; }
 
 	auto begin() { return &at(0); }
 	auto begin() const { return &at(0); }
 
 	auto end() { return &at(0) + 4; }
 	auto end() const { return &at(0) + 4; }
-
-	constexpr const T &at(std::size_t i) const {
-		assert(i < 4 && "Colour subscript out of range");
-		return ((const T *)this)[i];
-	}
-	constexpr T &at(std::size_t i) {
-		assert(i < 4 && "Colour subscript out of range");
-		return ((T *)this)[i];
-	}
 
 	constexpr const Vector<T, 2> &xy() const { return *reinterpret_cast<const Vector<T, 2> *>(this); }
 	constexpr Vector<T, 2> &xy() { return *reinterpret_cast<Vector<T, 2> *>(this); }

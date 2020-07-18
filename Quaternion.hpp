@@ -76,25 +76,17 @@ public:
 		}
 	}
 
+	constexpr const T &at(std::size_t i) const { return i == 0 ? x : i == 1 ? y : i == 2 ? z : w; }
+	constexpr T &at(std::size_t i) { return i == 0 ? x : i == 1 ? y : i == 2 ? z : w; }
+	
 	constexpr const T &operator[](std::size_t i) const { return at(i); }
 	constexpr T &operator[](std::size_t i) { return at(i); }
-
-	constexpr auto size() const { return 4; }
 
 	auto begin() { return &at(0); }
 	auto begin() const { return &at(0); }
 
 	auto end() { return &at(0) + 4; }
 	auto end() const { return &at(0) + 4; }
-
-	constexpr const T &at(std::size_t i) const {
-		assert(i < 4 && "Quaternion subscript out of range");
-		return  i == 0 ? x : i == 1 ? y : i == 2 ? z : w;
-	}
-	constexpr T &at(std::size_t i) {
-		assert(i < 4 && "Quaternion subscript out of range");
-		return  i == 0 ? x : i == 1 ? y : i == 2 ? z : w;
-	}
 
 	constexpr const Vector<T, 2> &xy() const { return *reinterpret_cast<const Vector<T, 2> *>(this); }
 	constexpr Vector<T, 2> &xy() { return *reinterpret_cast<Vector<T, 2> *>(this); }

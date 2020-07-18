@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <cassert>
 #include <cstdint>
 
 #include "Maths.hpp"
@@ -39,7 +38,7 @@ template<typename T>
 class VectorBase<T, 3> {
 protected:
 	constexpr VectorBase() = default;
-	constexpr VectorBase(T x, T y, T z) : x(x), y(y), z(z) {}
+	constexpr VectorBase(T x, T y, T z = 0) : x(x), y(y), z(z) {}
 public:
 	T x{}, y{}, z{};
 };
@@ -48,7 +47,7 @@ template<typename T>
 class VectorBase<T, 4> {
 protected:
 	constexpr VectorBase() = default;
-	constexpr VectorBase(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
+	constexpr VectorBase(T x, T y, T z = 0, T w = 0) : x(x), y(y), z(z), w(w) {}
 public:
 	T x{}, y{}, z{}, w{};
 };
@@ -62,14 +61,21 @@ template<typename T, std::size_t N>
 class Vector : public VectorBase<T, N> {
 public:
 	constexpr Vector() = default;
-	template<typename ...Args, typename = std::enable_if_t<sizeof...(Args) == N && std::conjunction_v<std::is_arithmetic<Args>...>>>
+	template<typename ...Args, typename = std::enable_if_t<sizeof...(Args) <= N && std::conjunction_v<std::is_arithmetic<Args>...>>>
 	constexpr Vector(Args... args) : VectorBase<T, N>(static_cast<T>(args)...) {}
 	template<typename T1, typename = std::enable_if_t<std::is_arithmetic_v<T1>>>
 	constexpr explicit Vector(T1 s) { std::fill(begin(), end(), static_cast<T>(s)); }
-	//template<typename T1, std::size_t N1, typename... Args, typename = std::enable_if_t<N1 < N && sizeof...(Args) == (N - N1)>>
-	//constexpr explicit Vector(const Vector<T1, N1> &v, Args... args) : VectorBase<T, N>(v, args...) {}
-	//template<typename T1, std::size_t N1, typename T2, std::size_t N2, typename = std::enable_if_t<N1 + N2 == N>>
-	//constexpr Vector(const Vector<T1, N1> &v1, const Vector<T2, N2> &v2) : VectorBase<T, N>(v1, v2) {}
+
+	template<typename T1, std::size_t N1, int ...S1, typename... Args>
+	constexpr Vector(const Vector<T1, N1> &v1, std::index_sequence<S1...>, Args... args) : VectorBase<T, N>(v1[S1]..., args...) {}
+	template<typename T1, std::size_t N1, typename... Args, typename = std::enable_if_t<N1 < N && sizeof...(Args) == (N - N1)>>
+	constexpr explicit Vector(const Vector<T1, N1> &v, Args... args) : Vector(v, std::make_index_sequence<N1>(), args...) {}
+
+	template<typename T1, typename T2, std::size_t N1, std::size_t N2, int ...S1, int ...S2>
+	constexpr Vector(const Vector<T1, N1> &v1, const Vector<T2, N2> &v2, std::index_sequence<S1...>, std::index_sequence<S2...>) : VectorBase<T, N>(v1[S1]..., v2[S2]...) {}
+	template<typename T1, typename T2, std::size_t N1, std::size_t N2, typename = std::enable_if_t<N1 + N2 == N>>
+	constexpr Vector(const Vector<T1, N1> &v1, const Vector<T2, N2> &v2) : Vector(v1, v2, std::make_index_sequence<N1>(), std::make_index_sequence<N2>()) {}
+	
 	template<typename T1>
 	constexpr Vector(const Vector<T1, N> &v) { copy_cast(v.begin(), v.end(), begin()); }
 
@@ -79,25 +85,17 @@ public:
 		return *this;
 	}
 
+	constexpr const T &at(std::size_t i) const { return ((const T *)this)[i]; }
+	constexpr T &at(std::size_t i) { return ((T *)this)[i]; }
+
 	constexpr const T &operator[](std::size_t i) const { return at(i); }
 	constexpr T &operator[](std::size_t i) { return at(i); }
-
-	constexpr auto size() const { return N; }
 
 	auto begin() { return &at(0); }
 	auto begin() const { return &at(0); }
 
 	auto end() { return &at(0) + N; }
 	auto end() const { return &at(0) + N; }
-
-	constexpr const T &at(std::size_t i) const {
-		assert(i < N && "Vector subscript out of range");
-		return ((const T *)this)[i];
-	}
-	constexpr T &at(std::size_t i) {
-		assert(i < N && "Vector subscript out of range");
-		return ((T *)this)[i];
-	}
 
 	template<typename = std::enable_if_t<N >= 2>>
 	constexpr const Vector<T, 2> &xy() const { return *reinterpret_cast<const Vector<T, 2> *>(this); }
@@ -108,6 +106,9 @@ public:
 	constexpr const Vector<T, 3> &xyz() const { return *reinterpret_cast<const Vector<T, 3> *>(this); }
 	template<typename = std::enable_if_t<N >= 3>>
 	constexpr Vector<T, 3> &xyz() { return *reinterpret_cast<Vector<T, 3> *>(this); }
+
+	template<std::size_t ...I>
+	constexpr auto Swizzle() const { return Vector<T, sizeof...(I)>(at(I)...); }
 
 	/**
 	 * Calculates the dot product of the this vector and another vector.
@@ -679,18 +680,18 @@ template<typename T, std::size_t N>
 const Vector<T, N> Vector<T, N>::One = Vector<T, N>(1);
 template<typename T, std::size_t N>
 const Vector<T, N> Vector<T, N>::Infinity = Vector<T, N>(std::numeric_limits<T>::infinity());
-template<typename T, std::size_t N> // typename = std::enable_if<N <= 2> 
-const Vector<T, N> Vector<T, N>::Right = Vector<T, 2>(1, 0);
-template<typename T, std::size_t N> // typename = std::enable_if<N <= 2> 
-const Vector<T, N> Vector<T, N>::Left = Vector<T, 2>(-1, 0);
-template<typename T, std::size_t N> // typename = std::enable_if<N <= 2> 
-const Vector<T, N> Vector<T, N>::Up = Vector<T, 2>(0, 1);
-template<typename T, std::size_t N> // typename = std::enable_if<N <= 2> 
-const Vector<T, N> Vector<T, N>::Down = Vector<T, 2>(0, -1);
-template<typename T, std::size_t N> // typename = std::enable_if<N <= 3> 
-const Vector<T, N> Vector<T, N>::Front = Vector<T, 3>(0, 0, 1);
-template<typename T, std::size_t N> // typename = std::enable_if<N <= 3> 
-const Vector<T, N> Vector<T, N>::Back = Vector<T, 3>(0, 0, -1);
+template<typename T, std::size_t N> 
+const Vector<T, N> Vector<T, N>::Right = Vector<T, N>(1, 0);
+template<typename T, std::size_t N>
+const Vector<T, N> Vector<T, N>::Left = Vector<T, N>(-1, 0);
+template<typename T, std::size_t N>
+const Vector<T, N> Vector<T, N>::Up = Vector<T, N>(0, 1);
+template<typename T, std::size_t N>
+const Vector<T, N> Vector<T, N>::Down = Vector<T, N>(0, -1);
+template<typename T, std::size_t N>
+const Vector<T, N> Vector<T, N>::Front = Vector<T, N>(0, 0, 1);
+template<typename T, std::size_t N>
+const Vector<T, N> Vector<T, N>::Back = Vector<T, N>(0, 0, -1);
 
 using Vector1f = Vector<float, 1>;
 using Vector1d = Vector<double, 1>;

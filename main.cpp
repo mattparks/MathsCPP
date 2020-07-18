@@ -11,7 +11,18 @@
 int main(int argc, char *argv[]) {
 	using namespace MathsCPP;
 
+
 	{
+		Vector2f a(1.0f, 2.0f), b(3.0f, 4.0f);
+		Vector4f c(a, b);
+		WRITE_DEBUG(c);
+
+		Vector<float, 5> d(c, 5.0f);
+		WRITE_DEBUG(d);
+
+		auto right = Vector<double, 3>::Right;
+	}
+	/*{
 		Rectanglef ten(0, 0, 10, 10);
 	}
 	{
@@ -38,11 +49,17 @@ int main(int argc, char *argv[]) {
 		WRITE_DEBUG(futureFp);
 	}
 	{
-		Vector3d sd(3.0);
-		Vector3f sf(sd);
-		sf = sd;
+		Vector<float, 3> a(1.0f, 2.0f, 3.0f);
+		Vector3f b(4.0f, -5.0f, 6.0f);
 
-		Vector2f a(1.0f, 2.0f), b(3.0f, 4.0f);
+		auto back = Vector<float, 3>::Back;
+
+		auto dot = a.Dot(b); // = 12.0f
+		auto sum = a.Swizzle<0, 1>() + b.Swizzle<0, 1>(); // = {5.0f, -3.0f}
+		WRITE_DEBUG(dot);
+		WRITE_DEBUG(sum);
+
+		//Vector2f a(1.0f, 2.0f), b(3.0f, 4.0f);
 		//Vector4f ab(a, b);
 		//Vector4f vb(1.0f, 2.0f, b);
 		//Vector4f av(a, 3.0f, 4.0f);
@@ -51,6 +68,14 @@ int main(int argc, char *argv[]) {
 		//Vector1d a1(1.0), b1(2.0), c1(3.0);
 		//Vector3d abc1(a1, b1, c1);
 	}
+	{
+		for (auto m : Matrix4x4f()) {
+			for (auto n : m) {
+				//	std::cout << n << ", ";
+			}
+			//std::cout << "\n";
+		}
+	}*/
 	/*{
 		Vector2f a(0.5f, -0.5f);
 		Vector2i b(10, 2);

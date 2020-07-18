@@ -32,25 +32,17 @@ public:
 		return *this;
 	}
 
+	constexpr const auto &at(std::size_t i) const { return ((const Vector<T, N> *)this)[i]; }
+	constexpr auto &at(std::size_t i) { return ((Vector<T, N> *)this)[i]; }
+	
 	constexpr const auto &operator[](std::size_t i) const { return at(i); }
 	constexpr auto &operator[](std::size_t i) { return at(i); }
 	
-	constexpr auto size() const { return M; }
-
 	auto begin() { return &at(0); }
 	auto begin() const { return &at(0); }
 
 	auto end() { return &at(0) + M; }
 	auto end() const { return &at(0) + M; }
-
-	constexpr const auto &at(std::size_t i) const {
-		assert(i < M && "Matrix subscript out of range");
-		return ((const Vector<T, N> *)this)[i];
-	}
-	constexpr auto &at(std::size_t i) {
-		assert(i < M && "Matrix subscript out of range");
-		return ((Vector<T, N> *)this)[i];
-	}
 
 	/**
 	 * Gets the submatrix of this matrix.
@@ -162,6 +154,8 @@ public:
 		T x = y * aspect;
 		return FrustumMatrix(-x, x, -y, y, n, f, a, z);
 	}
+
+	// TODO: Rotate, Translate, OrthographicMatrix, ViewMatrix, Project, Unproject, LookAt
 
 	template<typename T1>
 	constexpr friend auto operator==(const Matrix &lhs, const Matrix<T1, N, M> &rhs) {
@@ -327,14 +321,11 @@ public:
 		return stream;
 	}
 
-	static const Matrix Zero;
 	static const Matrix Identity;
 
 	Vector<T, N> data[M]{};
 };
 
-template<typename T, std::size_t N, std::size_t M>
-const Matrix<T, N, M> Matrix<T, N, M>::Zero = Matrix<T, N, M>();
 template<typename T, std::size_t N, std::size_t M>
 const Matrix<T, N, M> Matrix<T, N, M>::Identity = Matrix<T, N, M>(1);
 
