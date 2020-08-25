@@ -1,7 +1,9 @@
-﻿#pragma once
+﻿#include <algorithm>
+#include <cstdint>
+#include <ostream>
 
-#include "Vector.hpp"
-#include "Maths.hpp"
+export module MathsCPP:Matrix;
+import :Vector;
 
 namespace MathsCPP {
 /// Should projection matrices be generated assuming forward is {0,0,-1} or {0,0,1}
@@ -12,7 +14,7 @@ enum class ZRange { NegOneToOne, ZeroToOne };
 /**
  * @brief Holds a row major MxN matrix.
  */
-template<typename T, std::size_t N, std::size_t M/*, typename = std::enable_if_t<std::is_arithmetic_v<T>>*/>
+export template<typename T, std::size_t N, std::size_t M/*, typename = std::enable_if_t<std::is_arithmetic_v<T>>*/>
 class Matrix {
 public:
 	constexpr Matrix() = default;
@@ -329,20 +331,18 @@ public:
 template<typename T, std::size_t N, std::size_t M>
 const Matrix<T, N, M> Matrix<T, N, M>::Identity = Matrix<T, N, M>(1);
 
-using Matrix1x1f = Matrix<float, 1, 1>;
-using Matrix2x2f = Matrix<float, 2, 2>;
-using Matrix3x3f = Matrix<float, 3, 3>;
-using Matrix4x4f = Matrix<float, 4, 4>;
+export using Matrix1x1f = Matrix<float, 1, 1>;
+export using Matrix2x2f = Matrix<float, 2, 2>;
+export using Matrix3x3f = Matrix<float, 3, 3>;
+export using Matrix4x4f = Matrix<float, 4, 4>;
 }
 
-namespace std {
-template<typename T, size_t N, size_t M>
-struct hash<MathsCPP::Matrix<T, N, M>> {
+/*export template<typename T, size_t N, size_t M>
+struct std::hash<MathsCPP::Matrix<T, N, M>> {
 	size_t operator()(const MathsCPP::Matrix<T, N, M> &matrix) const noexcept {
 		size_t seed = 0;
 		for (size_t i = 0; i < M; i++)
 			MathsCPP::Maths::HashCombine(seed, matrix[i]);
 		return seed;
 	}
-};
-}
+};*/

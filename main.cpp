@@ -1,4 +1,5 @@
-﻿#include <iostream>
+﻿#if 0
+#include <iostream>
 
 #include "Logger.hpp"
 #include "Vector.hpp"
@@ -7,10 +8,16 @@
 #include "Quaternion.hpp"
 #include "Rectangle.hpp"
 #include "Duration.hpp"
+#endif
+
+import MathsCPP;
 
 int main(int argc, char *argv[]) {
 	using namespace MathsCPP;
 
+	Vector2f a(6.0f);
+	
+#if 0
 	{
 		Vector2f a(6.0f);
 		WRITE_DEBUG(a);
@@ -185,6 +192,6 @@ int main(int argc, char *argv[]) {
 		auto perspective = Matrix4x4f::PerspectiveMatrix(90.0f, 1.0f, 0.0f, 1.0f, ForwardAxis::NegZ);
 		WRITE_DEBUG("\n", perspective);
 	}*/
-	
+#endif
 	return 0;
 }

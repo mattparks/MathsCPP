@@ -1,9 +1,12 @@
-#pragma once
+#include <algorithm>
+#include <cstdint>
+#include <ostream>
 
-#include "Vector.hpp"
+export module MathsCPP:Rectangle;
+export import :Vector;
 
 namespace MathsCPP {
-template<typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+export template<typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 class Rectangle {
 public:
 	constexpr Rectangle() = default;
@@ -59,20 +62,18 @@ public:
 	T w{}, h{};
 };
 
-using Rectanglef = Rectangle<float>;
-using Rectangled = Rectangle<double>;
-using Rectanglei = Rectangle<int32_t>;
-using Rectangleui = Rectangle<uint32_t>;
+export using Rectanglef = Rectangle<float>;
+export using Rectangled = Rectangle<double>;
+export using Rectanglei = Rectangle<int32_t>;
+export using Rectangleui = Rectangle<uint32_t>;
 }
 
-namespace std {
-template<typename T>
-struct hash<MathsCPP::Rectangle<T>> {
+/*export template<typename T>
+struct std::hash<MathsCPP::Rectangle<T>> {
 	size_t operator()(const MathsCPP::Rectangle<T> &rectangle) const noexcept {
 		size_t seed = 0;
-		MathsCPP::Maths::HashCombine(seed, rectangle.xy());
-		MathsCPP::Maths::HashCombine(seed, rectangle.wh());
+		MathsCPP::HashCombine(seed, rectangle.xy());
+		MathsCPP::HashCombine(seed, rectangle.wh());
 		return seed;
 	}
-};
-}
+};*/

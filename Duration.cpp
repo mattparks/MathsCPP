@@ -1,8 +1,8 @@
-﻿#pragma once
+﻿#include <chrono>
+#include <sstream>
+#include <iomanip>
 
-#include <chrono>
-
-#include "Maths.hpp"
+export module MathsCPP:Duration;
 
 namespace MathsCPP {
 using namespace std::chrono_literals;
@@ -16,7 +16,7 @@ struct is_duration<std::chrono::duration<Rep, Period>> : std::true_type {};
 template<class T>
 inline constexpr bool is_duration_v = is_duration<T>::value;
 
-template<typename T, typename = std::enable_if_t<is_duration_v<T>>>
+export template<typename T, typename = std::enable_if_t<is_duration_v<T>>>
 class Duration {
 public:
 	constexpr Duration() = default;
@@ -37,10 +37,10 @@ public:
 		return *this;
 	}
 
-	template<typename T1, typename T2 = typename T1::rep, typename = std::enable_if_t<is_duration_v<T1>>>
-	constexpr auto Cast() const {
-		return static_cast<T2>(value.count()) / static_cast<T2>(typename std::ratio_divide<typename T::period, typename T1::period>::den);
-	}
+	//template<typename T1, typename T2 = typename T1::rep, typename = std::enable_if_t<is_duration_v<T1>>>
+	//constexpr auto Cast() const {
+	//	return static_cast<T2>(value.count()) / static_cast<T2>(typename std::ratio_divide<typename T::period, typename T1::period>::den);
+	//}
 
 	static Duration Now() {
 		static const auto LocalEpoch = std::chrono::high_resolution_clock::now();
@@ -187,15 +187,15 @@ public:
 	T value{};
 };
 
-using Nanoseconds = std::chrono::nanoseconds;
-using Microseconds = std::chrono::microseconds;
-using Milliseconds = std::chrono::milliseconds;
-using Seconds = std::chrono::seconds;
-using Minutes = std::chrono::minutes;
-using Hours = std::chrono::hours;
+export using Nanoseconds = std::chrono::nanoseconds;
+export using Microseconds = std::chrono::microseconds;
+export using Milliseconds = std::chrono::milliseconds;
+export using Seconds = std::chrono::seconds;
+export using Minutes = std::chrono::minutes;
+export using Hours = std::chrono::hours;
 
-//using Durationn = Duration<Nanoseconds>;
-//using Durationu = Duration<Microseconds>;
-//using Durationm = Duration<Milliseconds>;
-//using Durations = Duration<Seconds>;
+//export using Durationn = Duration<Nanoseconds>;
+//export using Durationu = Duration<Microseconds>;
+//export using Durationm = Duration<Milliseconds>;
+//export using Durations = Duration<Seconds>;
 }

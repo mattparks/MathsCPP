@@ -1,10 +1,9 @@
-#pragma once
-
 #include <cassert>
 #include <sstream>
 #include <iomanip>
 
-#include "Vector.hpp"
+export module MathsCPP:Colour;
+export import :Vector;
 
 namespace MathsCPP {
 template<typename T/*, typename = std::enable_if_t<std::is_arithmetic_v<T>>*/>
@@ -362,14 +361,12 @@ using Colouri = Colour<int32_t>;
 using Colourui = Colour<uint32_t>;
 }
 
-namespace std {
-template<typename T>
-struct hash<MathsCPP::Colour<T>> {
+/*export template<typename T>
+struct std::hash<MathsCPP::Colour<T>> {
 	size_t operator()(const MathsCPP::Colour<T> &colour) const noexcept {
 		size_t seed = 0;
 		for (size_t i = 0; i < 4; i++)
-			MathsCPP::Maths::HashCombine(seed, colour[i]);
+			MathsCPP::HashCombine(seed, colour[i]);
 		return seed;
 	}
-};
-}
+};*/

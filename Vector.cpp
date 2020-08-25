@@ -1,9 +1,8 @@
-#pragma once
-
 #include <algorithm>
 #include <cstdint>
+#include <ostream>
 
-#include "Maths.hpp"
+export module MathsCPP:Vector;
 
 namespace MathsCPP {
 template<typename T, std::size_t N, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
@@ -57,7 +56,7 @@ public:
  * @tparam T The value type.
  * @tparam N Number of elements.
  */
-template<typename T, std::size_t N>
+export template<typename T, std::size_t N>
 class Vector : public VectorBase<T, N> {
 public:
 	constexpr Vector() = default;
@@ -708,35 +707,33 @@ const Vector<T, N> Vector<T, N>::Front = Vector<T, N>(0, 0, 1);
 template<typename T, std::size_t N>
 const Vector<T, N> Vector<T, N>::Back = Vector<T, N>(0, 0, -1);
 
-using Vector1f = Vector<float, 1>;
-using Vector1d = Vector<double, 1>;
-using Vector1i = Vector<int32_t, 1>;
-using Vector1ui = Vector<uint32_t, 1>;
+export using Vector1f = Vector<float, 1>;
+export using Vector1d = Vector<double, 1>;
+export using Vector1i = Vector<int32_t, 1>;
+export using Vector1ui = Vector<uint32_t, 1>;
 
-using Vector2f = Vector<float, 2>;
-using Vector2d = Vector<double, 2>;
-using Vector2i = Vector<int32_t, 2>;
-using Vector2ui = Vector<uint32_t, 2>;
+export using Vector2f = Vector<float, 2>;
+export using Vector2d = Vector<double, 2>;
+export using Vector2i = Vector<int32_t, 2>;
+export using Vector2ui = Vector<uint32_t, 2>;
 
-using Vector3f = Vector<float, 3>;
-using Vector3d = Vector<double, 3>;
-using Vector3i = Vector<int32_t, 3>;
-using Vector3ui = Vector<uint32_t, 3>;
+export using Vector3f = Vector<float, 3>;
+export using Vector3d = Vector<double, 3>;
+export using Vector3i = Vector<int32_t, 3>;
+export using Vector3ui = Vector<uint32_t, 3>;
 
-using Vector4f = Vector<float, 4>;
-using Vector4d = Vector<double, 4>;
-using Vector4i = Vector<int32_t, 4>;
-using Vector4ui = Vector<uint32_t, 4>;
+export using Vector4f = Vector<float, 4>;
+export using Vector4d = Vector<double, 4>;
+export using Vector4i = Vector<int32_t, 4>;
+export using Vector4ui = Vector<uint32_t, 4>;
 }
 
-namespace std {
-template<typename T, size_t N>
-struct hash<MathsCPP::Vector<T, N>> {
+/*export template<typename T, size_t N>
+struct std::hash<MathsCPP::Vector<T, N>> {
 	size_t operator()(const MathsCPP::Vector<T, N> &vector) const noexcept {
 		size_t seed = 0;
 		for (size_t i = 0; i < N; i++)
-			MathsCPP::Maths::HashCombine(seed, vector[i]);
+			MathsCPP::HashCombine(seed, vector[i]);
 		return seed;
 	}
-};
-}
+};*/

@@ -1,9 +1,13 @@
-#pragma once
+#include <algorithm>
+#include <cstdint>
+#include <ostream>
 
-#include "Matrix.hpp"
+export module MathsCPP:Quaternion;
+export import :Vector;
+export import :Matrix;
 
 namespace MathsCPP {
-template<typename T/*, typename = std::enable_if_t<std::is_arithmetic_v<T>>*/>
+export template<typename T/*, typename = std::enable_if_t<std::is_arithmetic_v<T>>*/>
 class Quaternion {
 public:
 	constexpr Quaternion() = default;
@@ -15,11 +19,11 @@ public:
 	template<typename T1>
 	constexpr explicit Quaternion(const Vector<T1, 3> &v) {
 		auto sx = std::sin(v.x * 0.5f);
-		auto cx = Maths::CosFromSin(sx, v.x * 0.5f);
+		auto cx = CosFromSin(sx, v.x * 0.5f);
 		auto sy = std::sin(v.y * 0.5f);
-		auto cy = Maths::CosFromSin(sy, v.y * 0.5f);
+		auto cy = CosFromSin(sy, v.y * 0.5f);
 		auto sz = std::sin(v.z * 0.5f);
-		auto cz = Maths::CosFromSin(sz, v.z * 0.5f);
+		auto cz = CosFromSin(sz, v.z * 0.5f);
 
 		auto cycz = cy * cz;
 		auto sysz = sy * sz;
@@ -376,6 +380,6 @@ const Quaternion<T> Quaternion<T>::One = Quaternion<T>(1);
 template<typename T>
 const Quaternion<T> Quaternion<T>::Infinity = Quaternion<T>(std::numeric_limits<T>::infinity());
 
-using Quaternionf = Quaternion<float>;
-using Quaterniond = Quaternion<double>;
+export using Quaternionf = Quaternion<float>;
+export using Quaterniond = Quaternion<double>;
 }
