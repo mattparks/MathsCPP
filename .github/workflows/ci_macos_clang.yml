@@ -1,0 +1,16 @@
+name: macos_clang
+
+on: [push, pull_request]
+
+jobs:
+  macos_clang:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build MathsCPP
+      env:
+        CC: clang
+        CXX: clang++
+      run: |
+        cmake -B Build -G "Xcode" -DCMAKE_BUILD_TYPE=Release
+        cmake --build Build

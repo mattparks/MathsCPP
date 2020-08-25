@@ -63,19 +63,32 @@ public:
 	constexpr Vector() = default;
 	template<typename ...Args, typename = std::enable_if_t<sizeof...(Args) <= N && std::conjunction_v<std::is_arithmetic<Args>...>>>
 	constexpr Vector(Args... args) : VectorBase<T, N>(static_cast<T>(args)...) {}
+	
+	template<typename T1, int ...S1>
+	constexpr explicit Vector(T1 s, std::index_sequence<S1...>) : VectorBase<T, N>(s + (0 * S1)...) {}
 	template<typename T1, typename = std::enable_if_t<std::is_arithmetic_v<T1>>>
-	constexpr explicit Vector(T1 s) { std::fill(begin(), end(), static_cast<T>(s)); }
+	constexpr explicit Vector(T1 s) : Vector(s, std::make_index_sequence<N>()) {}
 
 	template<typename T1, std::size_t N1, int ...S1, typename... Args>
-	constexpr Vector(const Vector<T1, N1> &v1, std::index_sequence<S1...>, Args... args) : VectorBase<T, N>(v1[S1]..., args...) {}
-	template<typename T1, std::size_t N1, typename... Args, typename = std::enable_if_t<N1 < N && sizeof...(Args) == (N - N1)>>
+	constexpr explicit Vector(const Vector<T1, N1> &v, std::index_sequence<S1...>, Args... args) : VectorBase<T, N>(v[S1]..., args...) {}
+	template<typename T1, std::size_t N1, typename... Args, typename = std::enable_if_t<(N1 < N) && sizeof...(Args) == (N - N1)>>
 	constexpr explicit Vector(const Vector<T1, N1> &v, Args... args) : Vector(v, std::make_index_sequence<N1>(), args...) {}
 
 	template<typename T1, typename T2, std::size_t N1, std::size_t N2, int ...S1, int ...S2>
 	constexpr Vector(const Vector<T1, N1> &v1, const Vector<T2, N2> &v2, std::index_sequence<S1...>, std::index_sequence<S2...>) : VectorBase<T, N>(v1[S1]..., v2[S2]...) {}
 	template<typename T1, typename T2, std::size_t N1, std::size_t N2, typename = std::enable_if_t<N1 + N2 == N>>
 	constexpr Vector(const Vector<T1, N1> &v1, const Vector<T2, N2> &v2) : Vector(v1, v2, std::make_index_sequence<N1>(), std::make_index_sequence<N2>()) {}
-	
+
+	template<typename T1, std::size_t N1, int ...S1, int ...S2>
+	constexpr explicit Vector(const Vector<T1, N1> &v, std::index_sequence<S1...>, std::index_sequence<S2...>) : VectorBase<T, N>(v[S1]..., (0 * S2)...) {}
+	template<typename T1, std::size_t N1, typename = std::enable_if_t<(N1 < N)>>
+	constexpr explicit Vector(const Vector<T1, N1> &v) : Vector(v, std::make_index_sequence<N1>(), std::make_index_sequence<N - N1>()) {} // Vector(v, Vector<T1, N - N1>())
+
+	//template<typename T1, std::size_t N1, int ...S1>
+	//constexpr explicit Vector(const Vector<T1, N1> &v, std::index_sequence<S1...>) : VectorBase<T, N>(v[S1]...) {}
+	//template<typename T1, std::size_t N1, typename = std::enable_if_t<N1 >= N>>
+	//constexpr explicit Vector(const Vector<T1, N1> &v) : Vector(v, std::make_index_sequence<N>()) {}
+
 	template<typename T1>
 	constexpr Vector(const Vector<T1, N> &v) { copy_cast(v.begin(), v.end(), begin()); }
 
@@ -91,6 +104,8 @@ public:
 	constexpr const T &operator[](std::size_t i) const { return at(i); }
 	constexpr T &operator[](std::size_t i) { return at(i); }
 
+	constexpr auto size() const { return N; }
+	
 	auto begin() { return &at(0); }
 	auto begin() const { return &at(0); }
 
@@ -154,9 +169,9 @@ public:
 	template<typename = std::enable_if_t<N == 2 || N == 3>>
 	constexpr auto Cross(const Vector &other) const {
 		if constexpr (N == 2) {
-			return x * other.y - y * other.x;
+			return at(0) * other[1] - at(1) * other[0];
 		} else if constexpr (N == 3) {
-			return Vector(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
+			return Vector(at(1) * other[2] - at(2) * other[1], at(2) * other[0] - at(0) * other[2], at(0) * other[1] - at(1) * other[0]);
 		}
 	}
 
@@ -297,7 +312,7 @@ public:
 	Vector Rotate(T1 a) const {
 		const auto s = std::sin(a);
 		const auto c = std::cos(a);
-		return {x * c - y * s, x * s + y * c};
+		return {at(0) * c - at(1) * s, at(0) * s + at(1) * c};
 	}
 
 	/**
@@ -309,9 +324,9 @@ public:
 	 */
 	template<typename = std::enable_if_t<N == 2>>
 	constexpr bool InTriangle(const Vector &v1, const Vector &v2, const Vector &v3) const {
-		auto b1 = ((x - v2.x) * (v1.y - v2.y) - (v1.x - v2.y) * (y - v2.y)) < 0;
-		auto b2 = ((x - v3.x) * (v2.y - v3.y) - (v2.x - v3.y) * (y - v3.y)) < 0;
-		auto b3 = ((x - v1.x) * (v3.y - v1.y) - (v3.x - v1.y) * (y - v1.y)) < 0;
+		auto b1 = ((at(0) - v2[0]) * (v1[1] - v2[1]) - (v1[0] - v2[1]) * (at(1) - v2[1])) < 0;
+		auto b2 = ((at(0) - v3[0]) * (v2[1] - v3[1]) - (v2[0] - v3[1]) * (at(1) - v3[1])) < 0;
+		auto b3 = ((at(0) - v1[0]) * (v3[1] - v1[1]) - (v3[0] - v1[1]) * (at(1) - v1[1])) < 0;
 		return ((b1 == b2) & (b2 == b3));
 	}
 
@@ -322,13 +337,13 @@ public:
 	template<typename = std::enable_if_t<N == 2 || N == 3>>
 	auto CartesianToPolar() const {
 		if constexpr (N == 2) {
-			auto radius = std::sqrt(x * x + y * y);
-			auto theta = std::atan2(y, x);
+			auto radius = std::sqrt(at(0) * at(0) + at(1) * at(1));
+			auto theta = std::atan2(at(1), at(0));
 			return Vector<decltype(radius), N>(radius, theta);
 		} else if constexpr (N == 3) {
-			auto radius = std::sqrt(x * x + y * y + z * z);
-			auto theta = std::atan2(y, x);
-			auto phi = std::atan2(std::sqrt(x * x + y * y), z);
+			auto radius = std::sqrt(at(0) * at(0) + at(1) * at(1) + at(2) * at(2));
+			auto theta = std::atan2(at(1), at(0));
+			auto phi = std::atan2(std::sqrt(at(0) * at(0) + at(1) * at(1)), at(2));
 			return Vector<decltype(radius), N>(radius, theta, phi);
 		}
 	}
@@ -340,13 +355,13 @@ public:
 	template<typename = std::enable_if_t<N == 2 || N == 3>>
 	auto PolarToCartesian() const {
 		if constexpr (N == 2) {
-			auto x1 = x * std::cos(y);
-			auto y1 = x * std::sin(x);
+			auto x1 = at(0) * std::cos(at(1));
+			auto y1 = at(0) * std::sin(at(0));
 			return Vector<decltype(x1), N>(x1, y1);
 		} else if constexpr (N == 3) {
-			auto x1 = x * std::sin(z) * std::cos(y);
-			auto y1 = x * std::sin(z) * std::sin(y);
-			auto z1 = x * std::cos(z);
+			auto x1 = at(0) * std::sin(at(2)) * std::cos(at(1));
+			auto y1 = at(0) * std::sin(at(2)) * std::sin(at(1));
+			auto z1 = at(0) * std::cos(at(2));
 			return Vector<decltype(x1), N>(x1, y1, z1);
 		}
 	}

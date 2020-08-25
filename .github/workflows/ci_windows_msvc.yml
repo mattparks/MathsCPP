@@ -1,0 +1,13 @@
+name: windows_msvc
+
+on: [push, pull_request]
+
+jobs:
+  windows_msvc:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build MathsCPP
+      run: |
+        cmake -B Build -G "Visual Studio 16 2019" -DCMAKE_BUILD_TYPE=Release
+        cmake --build Build

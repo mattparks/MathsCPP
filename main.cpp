@@ -11,7 +11,17 @@
 int main(int argc, char *argv[]) {
 	using namespace MathsCPP;
 
-
+	{
+		Vector2f a(6.0f);
+		WRITE_DEBUG(a);
+	}
+	{
+		Vector4f a(1.0f, 2.0f, 3.0f, 4.0f);
+	//	Vector3f b(a);
+	//	WRITE_DEBUG(b);
+	//	Vector<float, 8> c(a);
+	//	WRITE_DEBUG(c);
+	}
 	{
 		Vector2f a(1.0f, 2.0f), b(3.0f, 4.0f);
 		Vector4f c(a, b);
